@@ -85,13 +85,12 @@ sub MAIN($filename) {
                 my $int_input = enter_integer("Enter input for " ~ "N" ~ $tokens[0] ~ ": ");
                 %memory{ $tokens[0] } = $int_input;                
             } elsif ($tokens[1] eq "OUTPUT") {
-
                 if (%memory{$tokens[0]}:!exists) {
                     printf("ERROR: '%s' at line %d\n", $instruction, ($line_number + 1));
                     printf("ERROR: Attempt to access uninitialised memory\n");
                     return;
                 }
-                say %memory{$tokens[0]};
+                say "N" ~ $tokens[0] ~ ": " ~ %memory{$tokens[0]};
             } elsif (!is_integer($tokens[1])) {
                 printf("ERROR: '%s' at line %d\n", $instruction, ($line_number + 1));
                 printf("ERROR: Expected integer or 'INPUT' for parameter 2 for command 'N' but found %s\n", $tokens[1]);
@@ -189,7 +188,13 @@ sub MAIN($filename) {
             if ($egress == 0) {
                 $line_number++;
             } else {
+                my $saved_line_number = $line_number;
                 $line_number -= $tokens[0];
+                if (($line_number < 0) || ($line_number >= elems(@instructions))) {
+                    printf("ERROR: '%s' at line %d\n", $instruction, ($saved_line_number + 1));
+                    printf("ERROR: Attempt to conditional-branch outside of program bounds\n");
+                    return;
+                }
             }
         } elsif (($instruction eq "+") ||
                  ($instruction eq "-") ||
@@ -203,6 +208,6 @@ sub MAIN($filename) {
             return;
         }
         
-        #sleep(0.100);
+        sleep(0.050);
     }
 }
